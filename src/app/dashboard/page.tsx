@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic'
+export const runtime = "edge";
 
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -46,31 +47,31 @@ export default async function DashboardPage() {
     href?: string
     subtitle?: string
   }> = [
-    {
-      title: 'Total Produk',
-      value: productsResult.count || 0,
-      icon: Package,
-      href: '/product',
-    },
-    {
-      title: 'Total Pelanggan',
-      value: customersResult.count || 0,
-      icon: Users,
-      href: '/customer',
-    },
-    {
-      title: 'Total Transaksi',
-      value: transactionsResult.count || 0,
-      icon: Receipt,
-      href: '/transaction',
-    },
-    {
-      title: 'Total Order',
-      value: totalOrder.toLocaleString('id-ID'),
-      icon: TrendingUp,
-      subtitle: 'qty',
-    },
-  ]
+      {
+        title: 'Total Produk',
+        value: productsResult.count || 0,
+        icon: Package,
+        href: '/product',
+      },
+      {
+        title: 'Total Pelanggan',
+        value: customersResult.count || 0,
+        icon: Users,
+        href: '/customer',
+      },
+      {
+        title: 'Total Transaksi',
+        value: transactionsResult.count || 0,
+        icon: Receipt,
+        href: '/transaction',
+      },
+      {
+        title: 'Total Order',
+        value: totalOrder.toLocaleString('id-ID'),
+        icon: TrendingUp,
+        subtitle: 'qty',
+      },
+    ]
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('id-ID', {
