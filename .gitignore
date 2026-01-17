@@ -42,9 +42,3 @@ next-env.d.ts
 
 .claude/
 docs/
-
-# PWA
-public/sw.js
-public/workbox-*.js
-public/sw.js.map
-public/workbox-*.js.map
