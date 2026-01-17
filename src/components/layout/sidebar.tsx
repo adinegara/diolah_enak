@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AppLogo } from '@/components/app-logo'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -151,8 +152,9 @@ export function Sidebar() {
             })}
           </nav>
 
-          {/* Logout */}
-          <div className="p-4 border-t border-border">
+          {/* Theme Toggle & Logout */}
+          <div className="p-4 border-t border-border space-y-2">
+            <ThemeToggle collapsed={isCollapsed} />
             <Button
               variant="ghost"
               title={isCollapsed ? 'Keluar' : undefined}
