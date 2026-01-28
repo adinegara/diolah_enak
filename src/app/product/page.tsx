@@ -13,14 +13,38 @@ import {
 } from '@/components/ui/table'
 import { ProductForm, EditProductButton } from './product-form'
 import { DeleteProductButton } from './delete-button'
+import { SearchInput } from './search-input'
+import { Pagination } from './pagination'
 
-export default async function ProductPage() {
+const ITEMS_PER_PAGE = 10
+
+interface ProductPageProps {
+  searchParams: Promise<{ search?: string; page?: string }>
+}
+
+export default async function ProductPage({ searchParams }: ProductPageProps) {
+  const params = await searchParams
+  const search = params.search || ''
+  const currentPage = Number(params.page) || 1
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE
+
   const supabase = await createClient()
 
-  const { data: products } = await supabase
+  // Build query with search
+  let query = supabase
     .from('product')
-    .select('*')
+    .select('*', { count: 'exact' })
+
+  if (search) {
+    query = query.ilike('name', `%${search}%`)
+  }
+
+  const { data: products, count } = await query
     .order('created_at', { ascending: false })
+    .range(offset, offset + ITEMS_PER_PAGE - 1)
+
+  const totalItems = count || 0
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE)
 
   const formatCurrency = (value: number | null) => {
     if (value === null) return '-'
@@ -40,6 +64,9 @@ export default async function ProductPage() {
         </div>
         <ProductForm />
       </div>
+
+      {/* Search */}
+      <SearchInput />
 
       {/* Mobile Card View */}
       <div className="grid gap-4 md:hidden">
@@ -80,7 +107,9 @@ export default async function ProductPage() {
         {(!products || products.length === 0) && (
           <Card>
             <CardContent className="py-8 text-center text-muted-foreground">
-              Belum ada produk. Klik tombol &quot;Tambah Produk&quot; untuk menambahkan.
+              {search
+                ? `Tidak ada produk dengan nama "${search}"`
+                : 'Belum ada produk. Klik tombol "Tambah Produk" untuk menambahkan.'}
             </CardContent>
           </Card>
         )}
@@ -92,11 +121,11 @@ export default async function ProductPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nama</TableHead>
-                <TableHead>Deskripsi</TableHead>
-                <TableHead className="text-right">Harga</TableHead>
-                <TableHead className="text-right">Harga Customer</TableHead>
-                <TableHead className="w-[100px]">Aksi</TableHead>
+                <TableHead className="text-muted-foreground/60">Nama</TableHead>
+                <TableHead className="text-muted-foreground/60">Deskripsi</TableHead>
+                <TableHead className="text-muted-foreground/60 text-right">Harga</TableHead>
+                <TableHead className="text-muted-foreground/60 text-right">Harga Customer</TableHead>
+                <TableHead className="text-muted-foreground/60 w-[100px]">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -123,7 +152,9 @@ export default async function ProductPage() {
               {(!products || products.length === 0) && (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                    Belum ada produk. Klik tombol &quot;Tambah Produk&quot; untuk menambahkan.
+                    {search
+                      ? `Tidak ada produk dengan nama "${search}"`
+                      : 'Belum ada produk. Klik tombol "Tambah Produk" untuk menambahkan.'}
                   </TableCell>
                 </TableRow>
               )}
@@ -131,6 +162,13 @@ export default async function ProductPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+      />
     </div>
   )
 }

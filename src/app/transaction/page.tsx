@@ -249,15 +249,15 @@ export default async function TransactionPage({ searchParams }: PageProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Tanggal</TableHead>
-                <TableHead>Pelanggan</TableHead>
-                <TableHead>Produk</TableHead>
-                <TableHead className="text-right">Harga</TableHead>
-                <TableHead className="text-right">Order</TableHead>
-                <TableHead className="text-right">Retur</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-[100px]">Aksi</TableHead>
+                <TableHead className="text-muted-foreground/60">Tanggal</TableHead>
+                <TableHead className="text-muted-foreground/60">Pelanggan</TableHead>
+                <TableHead className="text-muted-foreground/60">Produk</TableHead>
+                <TableHead className="text-muted-foreground/60 text-right">Harga</TableHead>
+                <TableHead className="text-muted-foreground/60 text-right">Order</TableHead>
+                <TableHead className="text-muted-foreground/60 text-right">Retur</TableHead>
+                <TableHead className="text-muted-foreground/60 text-right">Total</TableHead>
+                <TableHead className="text-muted-foreground/60">Status</TableHead>
+                <TableHead className="text-muted-foreground/60 w-[100px]">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
