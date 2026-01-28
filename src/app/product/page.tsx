@@ -60,9 +60,20 @@ export default async function ProductPage() {
                   {product.description}
                 </p>
               )}
-              <p className="text-lg font-semibold text-primary">
-                {formatCurrency(product.price)}
-              </p>
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-xs text-muted-foreground">Harga</p>
+                  <p className="text-lg font-semibold text-primary">
+                    {formatCurrency(product.price)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Harga Customer</p>
+                  <p className="text-lg font-semibold text-primary">
+                    {formatCurrency(product.customer_price)}
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         ))}
@@ -84,6 +95,7 @@ export default async function ProductPage() {
                 <TableHead>Nama</TableHead>
                 <TableHead>Deskripsi</TableHead>
                 <TableHead className="text-right">Harga</TableHead>
+                <TableHead className="text-right">Harga Customer</TableHead>
                 <TableHead className="w-[100px]">Aksi</TableHead>
               </TableRow>
             </TableHeader>
@@ -97,6 +109,9 @@ export default async function ProductPage() {
                   <TableCell className="text-right">
                     {formatCurrency(product.price)}
                   </TableCell>
+                  <TableCell className="text-right">
+                    {formatCurrency(product.customer_price)}
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
                       <EditProductButton product={product} />
@@ -107,7 +122,7 @@ export default async function ProductPage() {
               ))}
               {(!products || products.length === 0) && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                     Belum ada produk. Klik tombol &quot;Tambah Produk&quot; untuk menambahkan.
                   </TableCell>
                 </TableRow>

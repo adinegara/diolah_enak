@@ -37,6 +37,7 @@ export function ProductForm({ product, trigger }: ProductFormProps) {
       name: formData.get('name') as string,
       description: formData.get('description') as string || null,
       price: formData.get('price') ? Number(formData.get('price')) : null,
+      customer_price: formData.get('customer_price') ? Number(formData.get('customer_price')) : null,
     }
 
     const result = isEditing
@@ -97,6 +98,17 @@ export function ProductForm({ product, trigger }: ProductFormProps) {
               min="0"
               defaultValue={product?.price || ''}
               placeholder="Masukkan harga"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="customer_price">Harga Customer (Rp)</Label>
+            <Input
+              id="customer_price"
+              name="customer_price"
+              type="number"
+              min="0"
+              defaultValue={product?.customer_price || ''}
+              placeholder="Masukkan harga customer"
             />
           </div>
           {error && (

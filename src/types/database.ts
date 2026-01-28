@@ -43,6 +43,7 @@ export interface Database {
           name: string
           description: string | null
           price: number | null
+          customer_price: number | null
         }
         Insert: {
           id?: number
@@ -50,6 +51,7 @@ export interface Database {
           name: string
           description?: string | null
           price?: number | null
+          customer_price?: number | null
         }
         Update: {
           id?: number
@@ -57,6 +59,7 @@ export interface Database {
           name?: string
           description?: string | null
           price?: number | null
+          customer_price?: number | null
         }
         Relationships: []
       }
