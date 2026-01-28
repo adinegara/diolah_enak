@@ -42,7 +42,7 @@ export function AppLogo({ size = 'md', showText = true, className }: AppLogoProp
         <ChefHat className={cn(s.icon, 'text-primary-foreground')} />
       </div>
       {showText && (
-        <span className={cn(s.text, 'font-bold text-primary')}>Diolah Enak</span>
+        <span className={cn(s.text, 'font-bold text-foreground')}>Diolah Enak</span>
       )}
     </div>
   )
