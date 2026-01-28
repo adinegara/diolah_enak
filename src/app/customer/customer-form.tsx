@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import {
   Dialog,
@@ -91,18 +92,20 @@ export function CustomerForm({ customer, trigger }: CustomerFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="address">Alamat</Label>
-            <Input
+            <Textarea
               id="address"
               name="address"
+              rows={3}
               defaultValue={customer?.address || ''}
               placeholder="Masukkan alamat"
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="description">Catatan</Label>
-            <Input
+            <Textarea
               id="description"
               name="description"
+              rows={3}
               defaultValue={customer?.description || ''}
               placeholder="Catatan tambahan (opsional)"
             />

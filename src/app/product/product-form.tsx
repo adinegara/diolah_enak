@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import {
   Dialog,
@@ -82,9 +83,10 @@ export function ProductForm({ product, trigger }: ProductFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="description">Deskripsi</Label>
-            <Input
+            <Textarea
               id="description"
               name="description"
+              rows={3}
               defaultValue={product?.description || ''}
               placeholder="Deskripsi produk (opsional)"
             />
