@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import {
   Dialog,
@@ -54,6 +55,14 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
 
   const isEditing = !!transaction
 
+  // Reset form values when dialog opens for editing
+  useEffect(() => {
+    if (open && transaction) {
+      setSelectedCustomer(transaction.zone_id || '')
+      setSelectedProduct(transaction.product_id?.toString() || '')
+    }
+  }, [open, transaction])
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
@@ -67,6 +76,7 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
       order_qty: formData.get('order_qty') ? Number(formData.get('order_qty')) : null,
       return_qty: formData.get('return_qty') ? Number(formData.get('return_qty')) : null,
       status: formData.get('status') as string || null,
+      notes: formData.get('notes') as string || null,
     }
 
     const result = isEditing
@@ -173,9 +183,9 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
                 >
                   {selectedProduct
                     ? (() => {
-                        const product = products.find((p) => p.id.toString() === selectedProduct)
-                        return product ? `${product.name} - Rp ${product.price?.toLocaleString('id-ID') || 0}` : "Pilih produk"
-                      })()
+                      const product = products.find((p) => p.id.toString() === selectedProduct)
+                      return product ? `${product.name} - Rp ${product.price?.toLocaleString('id-ID') || 0}` : "Pilih produk"
+                    })()
                     : "Pilih produk"}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -222,7 +232,7 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
                 name="order_qty"
                 type="number"
                 min="0"
-                defaultValue={transaction?.order_qty || 0}
+                defaultValue={transaction?.order_qty || ''}
                 placeholder="0"
               />
             </div>
@@ -233,7 +243,7 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
                 name="return_qty"
                 type="number"
                 min="0"
-                defaultValue={transaction?.return_qty || 0}
+                defaultValue={transaction?.return_qty || ''}
                 placeholder="0"
               />
             </div>
@@ -250,6 +260,16 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
                 <SelectItem value="completed">Completed</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="notes">Catatan</Label>
+            <Textarea
+              id="notes"
+              name="notes"
+              defaultValue={transaction?.notes || ''}
+              placeholder="Tambahkan catatan..."
+              rows={3}
+            />
           </div>
           {error && (
             <p className="text-sm text-destructive">{error}</p>

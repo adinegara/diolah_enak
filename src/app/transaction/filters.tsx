@@ -10,10 +10,11 @@ import {
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { X } from 'lucide-react'
-import type { Customer } from '@/types/database'
+import type { Customer, Product } from '@/types/database'
 
 interface TransactionFiltersProps {
   customers: Customer[]
+  products: Product[]
 }
 
 const months = [
@@ -34,11 +35,12 @@ const months = [
 const currentYear = new Date().getFullYear()
 const years = Array.from({ length: 5 }, (_, i) => currentYear - i)
 
-export function TransactionFilters({ customers }: TransactionFiltersProps) {
+export function TransactionFilters({ customers, products }: TransactionFiltersProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
   const selectedCustomer = searchParams.get('customer') || ''
+  const selectedProduct = searchParams.get('product') || ''
   const selectedMonth = searchParams.get('month') || ''
   const selectedYear = searchParams.get('year') || ''
 
@@ -56,12 +58,12 @@ export function TransactionFilters({ customers }: TransactionFiltersProps) {
     router.push('/transaction')
   }
 
-  const hasFilters = selectedCustomer || selectedMonth || selectedYear
+  const hasFilters = selectedCustomer || selectedProduct || selectedMonth || selectedYear
 
   return (
-    <div className="flex flex-wrap gap-3 items-center">
+    <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap md:items-center">
       <Select value={selectedCustomer} onValueChange={(v) => updateFilter('customer', v)}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-full md:w-[180px]">
           <SelectValue placeholder="Semua Pelanggan" />
         </SelectTrigger>
         <SelectContent>
@@ -74,8 +76,22 @@ export function TransactionFilters({ customers }: TransactionFiltersProps) {
         </SelectContent>
       </Select>
 
+      <Select value={selectedProduct} onValueChange={(v) => updateFilter('product', v)}>
+        <SelectTrigger className="w-full md:w-[180px]">
+          <SelectValue placeholder="Semua Produk" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Semua Produk</SelectItem>
+          {products.map((product) => (
+            <SelectItem key={product.id} value={product.id.toString()}>
+              {product.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
       <Select value={selectedMonth} onValueChange={(v) => updateFilter('month', v)}>
-        <SelectTrigger className="w-[140px]">
+        <SelectTrigger className="w-full md:w-[140px]">
           <SelectValue placeholder="Bulan" />
         </SelectTrigger>
         <SelectContent>
@@ -89,7 +105,7 @@ export function TransactionFilters({ customers }: TransactionFiltersProps) {
       </Select>
 
       <Select value={selectedYear} onValueChange={(v) => updateFilter('year', v)}>
-        <SelectTrigger className="w-[120px]">
+        <SelectTrigger className="w-full md:w-[120px]">
           <SelectValue placeholder="Tahun" />
         </SelectTrigger>
         <SelectContent>

@@ -98,6 +98,7 @@ export interface Database {
           product_id: number | null
           status: string | null
           created_by: string | null
+          notes: string | null
         }
         Insert: {
           id?: number
@@ -109,6 +110,7 @@ export interface Database {
           product_id?: number | null
           status?: string | null
           created_by?: string | null
+          notes?: string | null
         }
         Update: {
           id?: number
@@ -120,6 +122,7 @@ export interface Database {
           product_id?: number | null
           status?: string | null
           created_by?: string | null
+          notes?: string | null
         }
         Relationships: [
           {

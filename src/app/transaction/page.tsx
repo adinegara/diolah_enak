@@ -14,12 +14,15 @@ import {
 import { TransactionForm, EditTransactionButton } from './transaction-form'
 import { DeleteTransactionButton } from './delete-button'
 import { TransactionFilters } from './filters'
+import { ExpandableText } from './expandable-text'
+import { StatsSection } from './stats-section'
 import { Badge } from '@/components/ui/badge'
 import type { Customer, Product, UserProfile } from '@/types/database'
 
 interface PageProps {
   searchParams: Promise<{
     customer?: string
+    product?: string
     month?: string
     year?: string
   }>
@@ -50,17 +53,21 @@ export default async function TransactionPage({ searchParams }: PageProps) {
     .order('date', { ascending: false })
 
   // Apply filters
-  if (params.customer) {
+  if (params.customer && params.customer !== 'all') {
     query = query.eq('zone_id', params.customer)
   }
 
-  if (params.year && params.month) {
+  if (params.product && params.product !== 'all') {
+    query = query.eq('product_id', Number(params.product))
+  }
+
+  if (params.year && params.year !== 'all' && params.month && params.month !== 'all') {
     const startDate = `${params.year}-${params.month.padStart(2, '0')}-01`
     const endDate = new Date(Number(params.year), Number(params.month), 0)
       .toISOString()
       .split('T')[0]
     query = query.gte('date', startDate).lte('date', endDate)
-  } else if (params.year) {
+  } else if (params.year && params.year !== 'all') {
     query = query.gte('date', `${params.year}-01-01`).lte('date', `${params.year}-12-31`)
   }
 
@@ -128,61 +135,15 @@ export default async function TransactionPage({ searchParams }: PageProps) {
       </div>
 
       {/* Filters */}
-      <TransactionFilters customers={customers} />
+      <TransactionFilters customers={customers} products={products} />
 
       {/* Summary Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Order
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">
-              {totalOrder.toLocaleString('id-ID')}
-            </div>
-            <p className="text-xs text-muted-foreground">{formatCurrency(totalBilled)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Retur
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">
-              {totalReturn.toLocaleString('id-ID')}
-            </div>
-            <p className="text-xs text-muted-foreground">{formatCurrency(totalReturned)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Qty Bersih
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {(totalOrder - totalReturn).toLocaleString('id-ID')}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Nilai Bersih
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(totalBilled - totalReturned)}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <StatsSection
+        totalOrder={totalOrder}
+        totalReturn={totalReturn}
+        totalBilled={totalBilled}
+        totalReturned={totalReturned}
+      />
 
       {/* Mobile Card View */}
       <div className="grid gap-4 md:hidden">
@@ -225,18 +186,30 @@ export default async function TransactionPage({ searchParams }: PageProps) {
                   <div>
                     <p className="text-muted-foreground">Order</p>
                     <p className="font-semibold text-primary">{orderQty}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatCurrency(orderQty * price)}
-                    </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Retur</p>
                     <p className="font-semibold text-destructive">{returnQty}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatCurrency(returnQty * price)}
-                    </p>
                   </div>
                 </div>
+                {transaction.status === 'completed' && (
+                  <div className="grid grid-cols-2 gap-4 text-sm pt-2 border-t">
+                    <div>
+                      <p className="text-muted-foreground">Total</p>
+                      <p className="font-semibold">{orderQty - returnQty}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Total (Rp)</p>
+                      <p className="font-semibold">{formatCurrency((orderQty - returnQty) * price)}</p>
+                    </div>
+                  </div>
+                )}
+                {transaction.notes && (
+                  <div className="text-sm pt-2 border-t">
+                    <p className="text-muted-foreground text-xs mb-1">Catatan:</p>
+                    <ExpandableText text={transaction.notes} maxLength={50} />
+                  </div>
+                )}
                 <div className="text-xs text-muted-foreground pt-2 border-t">
                   Dibuat oleh: {getCreatorName(creator)}
                 </div>
@@ -266,8 +239,10 @@ export default async function TransactionPage({ searchParams }: PageProps) {
                 <TableHead className="text-muted-foreground/60 text-right">Order</TableHead>
                 <TableHead className="text-muted-foreground/60 text-right">Retur</TableHead>
                 <TableHead className="text-muted-foreground/60 text-right">Total</TableHead>
+                <TableHead className="text-muted-foreground/60 text-right">Total (Rp)</TableHead>
                 <TableHead className="text-muted-foreground/60">Status</TableHead>
                 <TableHead className="text-muted-foreground/60">Dibuat Oleh</TableHead>
+                <TableHead className="text-muted-foreground/60">Catatan</TableHead>
                 <TableHead className="text-muted-foreground/60 w-[100px]">Aksi</TableHead>
               </TableRow>
             </TableHeader>
@@ -280,6 +255,7 @@ export default async function TransactionPage({ searchParams }: PageProps) {
                 const returnQty = transaction.return_qty || 0
                 const price = product?.price || 0
                 const netTotal = (orderQty - returnQty) * price
+                const total = orderQty - returnQty
 
                 return (
                   <TableRow key={transaction.id}>
@@ -298,11 +274,17 @@ export default async function TransactionPage({ searchParams }: PageProps) {
                       {returnQty}
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      {formatCurrency(netTotal)}
+                      {transaction.status === 'completed' ? total : '-'}
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      {transaction.status === 'completed' ? formatCurrency(netTotal) : '-'}
                     </TableCell>
                     <TableCell>{getStatusBadge(transaction.status)}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {getCreatorName(creator)}
+                    </TableCell>
+                    <TableCell className="max-w-[200px] whitespace-normal break-words">
+                      <ExpandableText text={transaction.notes} maxLength={30} />
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
@@ -319,7 +301,7 @@ export default async function TransactionPage({ searchParams }: PageProps) {
               })}
               {(!transactions || transactions.length === 0) && (
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={12} className="text-center text-muted-foreground py-8">
                     Belum ada transaksi. Klik tombol &quot;Tambah Transaksi&quot; untuk menambahkan.
                   </TableCell>
                 </TableRow>
