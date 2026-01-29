@@ -17,7 +17,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { X, Calendar } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
+import { X, Calendar, ChevronDown } from 'lucide-react'
 import type { Customer, Product } from '@/types/database'
 
 interface TransactionFiltersProps {
@@ -78,8 +79,8 @@ export function TransactionFilters({ customers, products }: TransactionFiltersPr
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const selectedCustomer = searchParams.get('customer') || ''
-  const selectedProduct = searchParams.get('product') || ''
+  const selectedCustomers = searchParams.get('customer')?.split(',').filter(Boolean) || []
+  const selectedProducts = searchParams.get('product')?.split(',').filter(Boolean) || []
   const selectedDateFilter = searchParams.get('dateFilter') || ''
   const selectedDateFrom = searchParams.get('dateFrom') || ''
   const selectedDateTo = searchParams.get('dateTo') || ''
@@ -88,6 +89,8 @@ export function TransactionFilters({ customers, products }: TransactionFiltersPr
 
   const [customType, setCustomType] = useState<string>('date')
   const [popoverOpen, setPopoverOpen] = useState(false)
+  const [customerPopoverOpen, setCustomerPopoverOpen] = useState(false)
+  const [productPopoverOpen, setProductPopoverOpen] = useState(false)
 
   // Initialize custom type based on URL params and auto-open popover
   useEffect(() => {
@@ -108,13 +111,47 @@ export function TransactionFilters({ customers, products }: TransactionFiltersPr
     }
   }, [selectedDateFilter, selectedDateFrom, selectedDateTo, selectedMonth, selectedYear])
 
-  const updateFilter = (key: string, value: string) => {
+  const toggleCustomer = (customerId: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    if (value && value !== 'all') {
-      params.set(key, value)
+    const newSelected = selectedCustomers.includes(customerId)
+      ? selectedCustomers.filter(id => id !== customerId)
+      : [...selectedCustomers, customerId]
+
+    if (newSelected.length > 0) {
+      params.set('customer', newSelected.join(','))
     } else {
-      params.delete(key)
+      params.delete('customer')
     }
+    params.delete('page')
+    router.push(`/transaction?${params.toString()}`)
+  }
+
+  const toggleProduct = (productId: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    const newSelected = selectedProducts.includes(productId)
+      ? selectedProducts.filter(id => id !== productId)
+      : [...selectedProducts, productId]
+
+    if (newSelected.length > 0) {
+      params.set('product', newSelected.join(','))
+    } else {
+      params.delete('product')
+    }
+    params.delete('page')
+    router.push(`/transaction?${params.toString()}`)
+  }
+
+  const clearCustomers = () => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('customer')
+    params.delete('page')
+    router.push(`/transaction?${params.toString()}`)
+  }
+
+  const clearProducts = () => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('product')
+    params.delete('page')
     router.push(`/transaction?${params.toString()}`)
   }
 
@@ -197,37 +234,90 @@ export function TransactionFilters({ customers, products }: TransactionFiltersPr
     return 'Semua Waktu'
   }
 
-  const hasFilters = selectedCustomer || selectedProduct || selectedDateFilter
+  const hasFilters = selectedCustomers.length > 0 || selectedProducts.length > 0 || selectedDateFilter
 
   return (
-    <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap md:items-center">
-      <Select value={selectedCustomer} onValueChange={(v) => updateFilter('customer', v)}>
-        <SelectTrigger className="w-full md:w-[180px]">
-          <SelectValue placeholder="Semua Pelanggan" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Semua Pelanggan</SelectItem>
-          {customers.map((customer) => (
-            <SelectItem key={customer.id} value={customer.id}>
-              {customer.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap md:items-center">
+        {/* Customer Multi-Select */}
+        <Popover open={customerPopoverOpen} onOpenChange={setCustomerPopoverOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="w-full md:w-[180px] justify-between">
+              <span className="truncate">
+                {selectedCustomers.length === 0
+                  ? 'Semua Pelanggan'
+                  : `${selectedCustomers.length} Pelanggan`}
+              </span>
+              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[200px] p-2" align="start">
+            <div className="space-y-1 max-h-[200px] overflow-y-auto">
+              {customers.map((customer) => (
+                <label
+                  key={customer.id}
+                  className="flex items-center gap-2 px-2 py-1.5 hover:bg-muted rounded cursor-pointer"
+                >
+                  <Checkbox
+                    checked={selectedCustomers.includes(customer.id)}
+                    onCheckedChange={() => toggleCustomer(customer.id)}
+                  />
+                  <span className="text-sm truncate">{customer.name}</span>
+                </label>
+              ))}
+            </div>
+            {selectedCustomers.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full mt-2"
+                onClick={clearCustomers}
+              >
+                Reset
+              </Button>
+            )}
+          </PopoverContent>
+        </Popover>
 
-      <Select value={selectedProduct} onValueChange={(v) => updateFilter('product', v)}>
-        <SelectTrigger className="w-full md:w-[180px]">
-          <SelectValue placeholder="Semua Produk" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Semua Produk</SelectItem>
-          {products.map((product) => (
-            <SelectItem key={product.id} value={product.id.toString()}>
-              {product.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        {/* Product Multi-Select */}
+        <Popover open={productPopoverOpen} onOpenChange={setProductPopoverOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="w-full md:w-[180px] justify-between">
+              <span className="truncate">
+                {selectedProducts.length === 0
+                  ? 'Semua Produk'
+                  : `${selectedProducts.length} Produk`}
+              </span>
+              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[200px] p-2" align="start">
+            <div className="space-y-1 max-h-[200px] overflow-y-auto">
+              {products.map((product) => (
+                <label
+                  key={product.id}
+                  className="flex items-center gap-2 px-2 py-1.5 hover:bg-muted rounded cursor-pointer"
+                >
+                  <Checkbox
+                    checked={selectedProducts.includes(product.id.toString())}
+                    onCheckedChange={() => toggleProduct(product.id.toString())}
+                  />
+                  <span className="text-sm truncate">{product.name}</span>
+                </label>
+              ))}
+            </div>
+            {selectedProducts.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full mt-2"
+                onClick={clearProducts}
+              >
+                Reset
+              </Button>
+            )}
+          </PopoverContent>
+        </Popover>
 
       <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
         <div className="flex gap-2">
@@ -375,11 +465,50 @@ export function TransactionFilters({ customers, products }: TransactionFiltersPr
         </PopoverContent>
       </Popover>
 
-      {hasFilters && (
-        <Button variant="ghost" size="sm" onClick={clearFilters}>
-          <X className="h-4 w-4 mr-1" />
-          Reset
-        </Button>
+        {hasFilters && (
+          <Button variant="ghost" size="sm" onClick={clearFilters}>
+            <X className="h-4 w-4 mr-1" />
+            Reset
+          </Button>
+        )}
+      </div>
+
+      {/* Selected Items Display */}
+      {(selectedCustomers.length > 0 || selectedProducts.length > 0) && (
+        <div className="flex flex-wrap gap-2">
+          {selectedCustomers.map((customerId) => {
+            const customer = customers.find(c => c.id === customerId)
+            return customer ? (
+              <div
+                key={customerId}
+                className="flex items-center gap-1 bg-primary/10 text-primary text-xs px-2 py-1 rounded-full"
+              >
+                <Checkbox
+                  checked
+                  onCheckedChange={() => toggleCustomer(customerId)}
+                  className="h-3 w-3"
+                />
+                <span>{customer.name}</span>
+              </div>
+            ) : null
+          })}
+          {selectedProducts.map((productId) => {
+            const product = products.find(p => p.id.toString() === productId)
+            return product ? (
+              <div
+                key={productId}
+                className="flex items-center gap-1 bg-secondary text-secondary-foreground text-xs px-2 py-1 rounded-full"
+              >
+                <Checkbox
+                  checked
+                  onCheckedChange={() => toggleProduct(productId)}
+                  className="h-3 w-3"
+                />
+                <span>{product.name}</span>
+              </div>
+            ) : null
+          })}
+        </div>
       )}
     </div>
   )

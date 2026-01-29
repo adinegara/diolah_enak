@@ -51,12 +51,18 @@ export default async function TransactionPage({ searchParams }: PageProps) {
     .order('date', { ascending: false })
 
   // Apply filters
-  if (params.customer && params.customer !== 'all') {
-    query = query.eq('zone_id', params.customer)
+  if (params.customer) {
+    const customerIds = params.customer.split(',').filter(Boolean)
+    if (customerIds.length > 0) {
+      query = query.in('zone_id', customerIds)
+    }
   }
 
-  if (params.product && params.product !== 'all') {
-    query = query.eq('product_id', Number(params.product))
+  if (params.product) {
+    const productIds = params.product.split(',').filter(Boolean).map(Number)
+    if (productIds.length > 0) {
+      query = query.in('product_id', productIds)
+    }
   }
 
   // Date filter
