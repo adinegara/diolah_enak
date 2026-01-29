@@ -1,3 +1,5 @@
+export const runtime = 'edge'
+
 import { createClient } from '@/lib/supabase/server'
 import { TransactionForm } from './transaction-form'
 import { TransactionContent } from './transaction-content'
