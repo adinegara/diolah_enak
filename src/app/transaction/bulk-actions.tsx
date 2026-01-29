@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useSWRConfig } from 'swr'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -10,6 +11,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { bulkUpdateStatus } from './actions'
+import { TRANSACTIONS_KEY_PREFIX } from '@/hooks/use-transactions'
+import { DASHBOARD_STATS_KEY } from '@/hooks/use-dashboard-stats'
 import { X } from 'lucide-react'
 
 interface BulkActionsProps {
@@ -18,6 +21,7 @@ interface BulkActionsProps {
 }
 
 export function BulkActions({ selectedIds, onClearSelection }: BulkActionsProps) {
+  const { mutate } = useSWRConfig()
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<string>('')
 
@@ -31,6 +35,9 @@ export function BulkActions({ selectedIds, onClearSelection }: BulkActionsProps)
     if (result.success) {
       onClearSelection()
       setStatus('')
+      // Refresh all transaction queries and dashboard stats (keeps existing data visible while revalidating)
+      mutate((key: string) => typeof key === 'string' && key.startsWith(TRANSACTIONS_KEY_PREFIX))
+      mutate(DASHBOARD_STATS_KEY)
     }
   }
 

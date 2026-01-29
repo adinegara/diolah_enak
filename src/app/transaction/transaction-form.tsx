@@ -1,6 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useSWRConfig } from 'swr'
+import { TRANSACTIONS_KEY_PREFIX } from '@/hooks/use-transactions'
+import { DASHBOARD_STATS_KEY } from '@/hooks/use-dashboard-stats'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -45,6 +48,7 @@ interface TransactionFormProps {
 }
 
 export function TransactionForm({ transaction, customers, products, trigger }: TransactionFormProps) {
+  const { mutate } = useSWRConfig()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -54,6 +58,12 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
   const [productOpen, setProductOpen] = useState(false)
 
   const isEditing = !!transaction
+
+  const refreshData = useCallback(() => {
+    // Refresh all transaction queries and dashboard stats (keeps existing data visible while revalidating)
+    mutate((key: string) => typeof key === 'string' && key.startsWith(TRANSACTIONS_KEY_PREFIX))
+    mutate(DASHBOARD_STATS_KEY)
+  }, [mutate])
 
   // Reset form values when dialog opens for editing
   useEffect(() => {
@@ -91,6 +101,7 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
       setOpen(false)
       setSelectedCustomer('')
       setSelectedProduct('')
+      refreshData()
     }
   }
 
