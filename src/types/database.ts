@@ -9,6 +9,30 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          id: string
+          email: string | null
+          full_name: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          email?: string | null
+          full_name?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string | null
+          full_name?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       customer: {
         Row: {
           id: string
@@ -73,6 +97,7 @@ export interface Database {
           zone_id: string | null
           product_id: number | null
           status: string | null
+          created_by: string | null
         }
         Insert: {
           id?: number
@@ -83,6 +108,7 @@ export interface Database {
           zone_id?: string | null
           product_id?: number | null
           status?: string | null
+          created_by?: string | null
         }
         Update: {
           id?: number
@@ -93,6 +119,7 @@ export interface Database {
           zone_id?: string | null
           product_id?: number | null
           status?: string | null
+          created_by?: string | null
         }
         Relationships: [
           {
@@ -107,6 +134,13 @@ export interface Database {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "product"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transaction_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
         ]
@@ -136,8 +170,12 @@ export type CustomerInsert = Database['public']['Tables']['customer']['Insert']
 export type ProductInsert = Database['public']['Tables']['product']['Insert']
 export type TransactionInsert = Database['public']['Tables']['transaction']['Insert']
 
+// User profile type from public.profiles table
+export type UserProfile = Database['public']['Tables']['profiles']['Row']
+
 // Transaction with joined data
 export type TransactionWithDetails = Transaction & {
   customer: Customer | null
   product: Product | null
+  creator: UserProfile | null
 }

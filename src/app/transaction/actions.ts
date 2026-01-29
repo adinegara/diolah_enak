@@ -7,7 +7,20 @@ import type { TransactionInsert } from '@/types/database'
 export async function createTransaction(data: TransactionInsert) {
   const supabase = await createClient()
 
-  const { error } = await supabase.from('transaction').insert(data)
+  // Get the current user
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'User not authenticated' }
+  }
+
+  // Add created_by to the data
+  const dataWithCreator = {
+    ...data,
+    created_by: user.id,
+  }
+
+  const { error } = await supabase.from('transaction').insert(dataWithCreator)
 
   if (error) {
     return { error: error.message }

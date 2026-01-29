@@ -15,7 +15,7 @@ import { TransactionForm, EditTransactionButton } from './transaction-form'
 import { DeleteTransactionButton } from './delete-button'
 import { TransactionFilters } from './filters'
 import { Badge } from '@/components/ui/badge'
-import type { Customer, Product } from '@/types/database'
+import type { Customer, Product, UserProfile } from '@/types/database'
 
 interface PageProps {
   searchParams: Promise<{
@@ -44,7 +44,8 @@ export default async function TransactionPage({ searchParams }: PageProps) {
     .select(`
       *,
       customer:zone_id(id, name),
-      product:product_id(id, name, price)
+      product:product_id(id, name, price),
+      creator:profiles!created_by(id, email, full_name)
     `)
     .order('date', { ascending: false })
 
@@ -109,6 +110,11 @@ export default async function TransactionPage({ searchParams }: PageProps) {
       default:
         return <Badge variant="secondary">Pending</Badge>
     }
+  }
+
+  const getCreatorName = (creator: UserProfile | null) => {
+    if (!creator) return '-'
+    return creator.full_name || creator.email || '-'
   }
 
   return (
@@ -183,6 +189,7 @@ export default async function TransactionPage({ searchParams }: PageProps) {
         {transactions?.map((transaction) => {
           const customer = transaction.customer as Customer | null
           const product = transaction.product as Product | null
+          const creator = transaction.creator as UserProfile | null
           const orderQty = transaction.order_qty || 0
           const returnQty = transaction.return_qty || 0
           const price = product?.price || 0
@@ -230,6 +237,9 @@ export default async function TransactionPage({ searchParams }: PageProps) {
                     </p>
                   </div>
                 </div>
+                <div className="text-xs text-muted-foreground pt-2 border-t">
+                  Dibuat oleh: {getCreatorName(creator)}
+                </div>
               </CardContent>
             </Card>
           )
@@ -257,6 +267,7 @@ export default async function TransactionPage({ searchParams }: PageProps) {
                 <TableHead className="text-muted-foreground/60 text-right">Retur</TableHead>
                 <TableHead className="text-muted-foreground/60 text-right">Total</TableHead>
                 <TableHead className="text-muted-foreground/60">Status</TableHead>
+                <TableHead className="text-muted-foreground/60">Dibuat Oleh</TableHead>
                 <TableHead className="text-muted-foreground/60 w-[100px]">Aksi</TableHead>
               </TableRow>
             </TableHeader>
@@ -264,6 +275,7 @@ export default async function TransactionPage({ searchParams }: PageProps) {
               {transactions?.map((transaction) => {
                 const customer = transaction.customer as Customer | null
                 const product = transaction.product as Product | null
+                const creator = transaction.creator as UserProfile | null
                 const orderQty = transaction.order_qty || 0
                 const returnQty = transaction.return_qty || 0
                 const price = product?.price || 0
@@ -289,6 +301,9 @@ export default async function TransactionPage({ searchParams }: PageProps) {
                       {formatCurrency(netTotal)}
                     </TableCell>
                     <TableCell>{getStatusBadge(transaction.status)}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {getCreatorName(creator)}
+                    </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
                         <EditTransactionButton
@@ -304,7 +319,7 @@ export default async function TransactionPage({ searchParams }: PageProps) {
               })}
               {(!transactions || transactions.length === 0) && (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
                     Belum ada transaksi. Klik tombol &quot;Tambah Transaksi&quot; untuk menambahkan.
                   </TableCell>
                 </TableRow>
