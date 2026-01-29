@@ -6,7 +6,10 @@ import { TransactionForm } from './transaction-form'
 import { TransactionFilters } from './filters'
 import { StatsSection } from './stats-section'
 import { TransactionList } from './transaction-list'
+import { Pagination } from './pagination'
 import type { Customer, Product, UserProfile } from '@/types/database'
+
+const ITEMS_PER_PAGE = 10
 
 interface PageProps {
   searchParams: Promise<{
@@ -17,12 +20,15 @@ interface PageProps {
     dateTo?: string
     month?: string
     year?: string
+    page?: string
   }>
 }
 
 export default async function TransactionPage({ searchParams }: PageProps) {
   const params = await searchParams
   const supabase = await createClient()
+  const currentPage = Number(params.page) || 1
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE
 
   // Fetch customers and products for forms
   const [customersResult, productsResult] = await Promise.all([
@@ -41,7 +47,7 @@ export default async function TransactionPage({ searchParams }: PageProps) {
       customer:zone_id(id, name),
       product:product_id(id, name, price),
       creator:profiles!created_by(id, email, full_name)
-    `)
+    `, { count: 'exact' })
     .order('date', { ascending: false })
 
   // Apply filters
@@ -117,15 +123,16 @@ export default async function TransactionPage({ searchParams }: PageProps) {
     }
   }
 
-  const { data: transactions } = await query
+  // First get all filtered transactions for stats calculation
+  const { data: allTransactions, count } = await query
 
-  // Calculate totals
+  // Calculate totals from all filtered transactions
   let totalOrder = 0
   let totalReturn = 0
   let totalBilled = 0
   let totalReturned = 0
 
-  transactions?.forEach((t) => {
+  allTransactions?.forEach((t) => {
     const orderQty = t.order_qty || 0
     const returnQty = t.return_qty || 0
     const price = (t.product as Product | null)?.price || 0
@@ -136,8 +143,15 @@ export default async function TransactionPage({ searchParams }: PageProps) {
     totalReturned += returnQty * price
   })
 
+  // Pagination
+  const totalItems = count || 0
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE)
+
+  // Get paginated transactions for display
+  const paginatedTransactions = (allTransactions || []).slice(offset, offset + ITEMS_PER_PAGE)
+
   // Transform transactions data for the list component
-  const transactionsData = (transactions || []).map((t) => ({
+  const transactionsData = paginatedTransactions.map((t) => ({
     ...t,
     customer: t.customer as Customer | null,
     product: t.product as Product | null,
@@ -170,6 +184,13 @@ export default async function TransactionPage({ searchParams }: PageProps) {
         transactions={transactionsData}
         customers={customers}
         products={products}
+      />
+
+      {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
       />
     </div>
   )

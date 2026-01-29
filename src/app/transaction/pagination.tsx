@@ -30,7 +30,7 @@ export function Pagination({ currentPage, totalPages, totalItems }: PaginationPr
     <div className={`flex items-center justify-between ${isPending ? 'opacity-50' : ''}`}>
       <p className="text-sm text-muted-foreground">
         <span className="md:hidden">{currentPage}/{totalPages} ({totalItems})</span>
-        <span className="hidden md:inline">Halaman {currentPage} dari {totalPages} ({totalItems} produk)</span>
+        <span className="hidden md:inline">Halaman {currentPage} dari {totalPages} ({totalItems} transaksi)</span>
       </p>
       <div className="flex gap-2">
         <Button
