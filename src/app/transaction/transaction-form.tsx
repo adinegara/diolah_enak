@@ -18,9 +18,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
 import { createTransaction, updateTransaction } from './actions'
 import type { Transaction, Customer, Product } from '@/types/database'
-import { Plus, Pencil } from 'lucide-react'
+import { Plus, Pencil, Check, ChevronsUpDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface TransactionFormProps {
   transaction?: Transaction
@@ -35,6 +49,8 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
   const [error, setError] = useState<string | null>(null)
   const [selectedCustomer, setSelectedCustomer] = useState<string>(transaction?.zone_id || '')
   const [selectedProduct, setSelectedProduct] = useState<string>(transaction?.product_id?.toString() || '')
+  const [customerOpen, setCustomerOpen] = useState(false)
+  const [productOpen, setProductOpen] = useState(false)
 
   const isEditing = !!transaction
 
@@ -97,33 +113,106 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
           </div>
           <div className="space-y-2">
             <Label htmlFor="customer">Pelanggan *</Label>
-            <Select value={selectedCustomer} onValueChange={setSelectedCustomer} required>
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih pelanggan" />
-              </SelectTrigger>
-              <SelectContent>
-                {customers.map((customer) => (
-                  <SelectItem key={customer.id} value={customer.id}>
-                    {customer.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={customerOpen} onOpenChange={setCustomerOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={customerOpen}
+                  className="w-full justify-between font-normal"
+                >
+                  {selectedCustomer
+                    ? customers.find((c) => c.id === selectedCustomer)?.name
+                    : "Pilih pelanggan"}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                <Command>
+                  <CommandInput placeholder="Cari pelanggan..." />
+                  <CommandList
+                    onWheel={(e) => {
+                      e.stopPropagation()
+                    }}
+                  >
+                    <CommandEmpty>Pelanggan tidak ditemukan.</CommandEmpty>
+                    <CommandGroup>
+                      {customers.map((customer) => (
+                        <CommandItem
+                          key={customer.id}
+                          value={customer.name}
+                          onSelect={() => {
+                            setSelectedCustomer(customer.id)
+                            setCustomerOpen(false)
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedCustomer === customer.id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {customer.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
           <div className="space-y-2">
             <Label htmlFor="product">Produk *</Label>
-            <Select value={selectedProduct} onValueChange={setSelectedProduct} required>
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih produk" />
-              </SelectTrigger>
-              <SelectContent>
-                {products.map((product) => (
-                  <SelectItem key={product.id} value={product.id.toString()}>
-                    {product.name} - Rp {product.price?.toLocaleString('id-ID') || 0}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={productOpen} onOpenChange={setProductOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={productOpen}
+                  className="w-full justify-between font-normal"
+                >
+                  {selectedProduct
+                    ? (() => {
+                        const product = products.find((p) => p.id.toString() === selectedProduct)
+                        return product ? `${product.name} - Rp ${product.price?.toLocaleString('id-ID') || 0}` : "Pilih produk"
+                      })()
+                    : "Pilih produk"}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                <Command>
+                  <CommandInput placeholder="Cari produk..." />
+                  <CommandList
+                    onWheel={(e) => {
+                      e.stopPropagation()
+                    }}
+                  >
+                    <CommandEmpty>Produk tidak ditemukan.</CommandEmpty>
+                    <CommandGroup>
+                      {products.map((product) => (
+                        <CommandItem
+                          key={product.id}
+                          value={product.name}
+                          onSelect={() => {
+                            setSelectedProduct(product.id.toString())
+                            setProductOpen(false)
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedProduct === product.id.toString() ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {product.name} - Rp {product.price?.toLocaleString('id-ID') || 0}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
