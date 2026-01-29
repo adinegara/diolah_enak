@@ -47,35 +47,38 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Date filter
+  // Date filter (using timestamp ranges)
   if (dateFilter && dateFilter !== 'all') {
     const today = new Date()
-    const todayStr = today.toISOString().split('T')[0]
+    today.setHours(0, 0, 0, 0)
+    const todayStart = today.toISOString()
+    const todayEnd = new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1).toISOString()
 
     switch (dateFilter) {
       case 'today':
-        query = query.eq('date', todayStr)
+        query = query.gte('date', todayStart).lte('date', todayEnd)
         break
       case 'yesterday': {
-        const yesterday = new Date(today)
-        yesterday.setDate(yesterday.getDate() - 1)
-        query = query.eq('date', yesterday.toISOString().split('T')[0])
+        const yesterdayStart = new Date(today)
+        yesterdayStart.setDate(yesterdayStart.getDate() - 1)
+        const yesterdayEnd = new Date(yesterdayStart.getTime() + 24 * 60 * 60 * 1000 - 1)
+        query = query.gte('date', yesterdayStart.toISOString()).lte('date', yesterdayEnd.toISOString())
         break
       }
       case 'thisWeek': {
         const startOfWeek = new Date(today)
         startOfWeek.setDate(today.getDate() - today.getDay())
-        query = query.gte('date', startOfWeek.toISOString().split('T')[0]).lte('date', todayStr)
+        query = query.gte('date', startOfWeek.toISOString()).lte('date', todayEnd)
         break
       }
       case 'thisMonth': {
         const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-        query = query.gte('date', startOfMonth.toISOString().split('T')[0]).lte('date', todayStr)
+        query = query.gte('date', startOfMonth.toISOString()).lte('date', todayEnd)
         break
       }
       case 'thisYear': {
         const startOfYear = new Date(today.getFullYear(), 0, 1)
-        query = query.gte('date', startOfYear.toISOString().split('T')[0]).lte('date', todayStr)
+        query = query.gte('date', startOfYear.toISOString()).lte('date', todayEnd)
         break
       }
       case 'custom': {
@@ -83,23 +86,30 @@ export async function GET(request: NextRequest) {
           const yearNum = parseInt(year)
           const monthNum = parseInt(month) - 1
           const startOfMonth = new Date(yearNum, monthNum, 1)
-          const endOfMonth = new Date(yearNum, monthNum + 1, 0)
+          const endOfMonth = new Date(yearNum, monthNum + 1, 0, 23, 59, 59, 999)
           query = query
-            .gte('date', startOfMonth.toISOString().split('T')[0])
-            .lte('date', endOfMonth.toISOString().split('T')[0])
+            .gte('date', startOfMonth.toISOString())
+            .lte('date', endOfMonth.toISOString())
         } else if (year && !month && !dateFrom) {
           const yearNum = parseInt(year)
           const startOfYear = new Date(yearNum, 0, 1)
-          const endOfYear = new Date(yearNum, 11, 31)
+          const endOfYear = new Date(yearNum, 11, 31, 23, 59, 59, 999)
           query = query
-            .gte('date', startOfYear.toISOString().split('T')[0])
-            .lte('date', endOfYear.toISOString().split('T')[0])
+            .gte('date', startOfYear.toISOString())
+            .lte('date', endOfYear.toISOString())
         } else if (dateFrom && dateTo) {
+          const fromDate = new Date(dateFrom)
+          fromDate.setHours(0, 0, 0, 0)
+          const toDate = new Date(dateTo)
+          toDate.setHours(23, 59, 59, 999)
           query = query
-            .gte('date', dateFrom)
-            .lte('date', dateTo)
+            .gte('date', fromDate.toISOString())
+            .lte('date', toDate.toISOString())
         } else if (dateFrom) {
-          query = query.eq('date', dateFrom)
+          const fromDate = new Date(dateFrom)
+          fromDate.setHours(0, 0, 0, 0)
+          const fromDateEnd = new Date(fromDate.getTime() + 24 * 60 * 60 * 1000 - 1)
+          query = query.gte('date', fromDate.toISOString()).lte('date', fromDateEnd.toISOString())
         }
         break
       }

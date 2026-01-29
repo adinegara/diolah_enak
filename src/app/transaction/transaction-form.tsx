@@ -79,8 +79,9 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
     setError(null)
 
     const formData = new FormData(e.currentTarget)
+    const dateValue = formData.get('date') as string
     const data = {
-      date: formData.get('date') as string || null,
+      date: dateValue ? new Date(dateValue).toISOString() : null,
       zone_id: selectedCustomer || null,
       product_id: selectedProduct ? Number(selectedProduct) : null,
       order_qty: formData.get('order_qty') ? Number(formData.get('order_qty')) : null,
@@ -129,7 +130,7 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
               name="date"
               type="date"
               required
-              defaultValue={transaction?.date || new Date().toISOString().split('T')[0]}
+              defaultValue={transaction?.date ? new Date(transaction.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
             />
           </div>
           <div className="space-y-2">
