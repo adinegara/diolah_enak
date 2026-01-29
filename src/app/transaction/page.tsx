@@ -12,6 +12,9 @@ interface PageProps {
   searchParams: Promise<{
     customer?: string
     product?: string
+    dateFilter?: string
+    dateFrom?: string
+    dateTo?: string
     month?: string
     year?: string
   }>
@@ -50,14 +53,68 @@ export default async function TransactionPage({ searchParams }: PageProps) {
     query = query.eq('product_id', Number(params.product))
   }
 
-  if (params.year && params.year !== 'all' && params.month && params.month !== 'all') {
-    const startDate = `${params.year}-${params.month.padStart(2, '0')}-01`
-    const endDate = new Date(Number(params.year), Number(params.month), 0)
-      .toISOString()
-      .split('T')[0]
-    query = query.gte('date', startDate).lte('date', endDate)
-  } else if (params.year && params.year !== 'all') {
-    query = query.gte('date', `${params.year}-01-01`).lte('date', `${params.year}-12-31`)
+  // Date filter
+  if (params.dateFilter && params.dateFilter !== 'all') {
+    const today = new Date()
+    const todayStr = today.toISOString().split('T')[0]
+
+    switch (params.dateFilter) {
+      case 'today':
+        query = query.eq('date', todayStr)
+        break
+      case 'yesterday': {
+        const yesterday = new Date(today)
+        yesterday.setDate(yesterday.getDate() - 1)
+        query = query.eq('date', yesterday.toISOString().split('T')[0])
+        break
+      }
+      case 'thisWeek': {
+        const startOfWeek = new Date(today)
+        startOfWeek.setDate(today.getDate() - today.getDay())
+        query = query.gte('date', startOfWeek.toISOString().split('T')[0]).lte('date', todayStr)
+        break
+      }
+      case 'thisMonth': {
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+        query = query.gte('date', startOfMonth.toISOString().split('T')[0]).lte('date', todayStr)
+        break
+      }
+      case 'thisYear': {
+        const startOfYear = new Date(today.getFullYear(), 0, 1)
+        query = query.gte('date', startOfYear.toISOString().split('T')[0]).lte('date', todayStr)
+        break
+      }
+      case 'custom': {
+        // Handle different custom filter types
+        if (params.month && params.year) {
+          // Specific month
+          const year = parseInt(params.year)
+          const month = parseInt(params.month) - 1 // JavaScript months are 0-indexed
+          const startOfMonth = new Date(year, month, 1)
+          const endOfMonth = new Date(year, month + 1, 0) // Last day of month
+          query = query
+            .gte('date', startOfMonth.toISOString().split('T')[0])
+            .lte('date', endOfMonth.toISOString().split('T')[0])
+        } else if (params.year && !params.month && !params.dateFrom) {
+          // Specific year only
+          const year = parseInt(params.year)
+          const startOfYear = new Date(year, 0, 1)
+          const endOfYear = new Date(year, 11, 31)
+          query = query
+            .gte('date', startOfYear.toISOString().split('T')[0])
+            .lte('date', endOfYear.toISOString().split('T')[0])
+        } else if (params.dateFrom && params.dateTo) {
+          // Date range or single date
+          query = query
+            .gte('date', params.dateFrom)
+            .lte('date', params.dateTo)
+        } else if (params.dateFrom) {
+          // Single date (fallback)
+          query = query.eq('date', params.dateFrom)
+        }
+        break
+      }
+    }
   }
 
   const { data: transactions } = await query
