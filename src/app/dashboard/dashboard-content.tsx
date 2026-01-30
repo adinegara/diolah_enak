@@ -3,6 +3,7 @@
 import { useDashboardStats } from '@/hooks/use-dashboard-stats'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { RefreshableContent } from '@/components/pull-to-refresh'
 import { Package, Users, Receipt, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -62,9 +63,10 @@ export function DashboardContent() {
   ]
 
   return (
-    <>
-      {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <RefreshableContent>
+      <div className="space-y-8">
+        {/* Stats Grid */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {isLoading
           ? [...Array(4)].map((_, i) => (
               <Card key={i}>
@@ -228,6 +230,7 @@ export function DashboardContent() {
           </div>
         </CardContent>
       </Card>
-    </>
+      </div>
+    </RefreshableContent>
   )
 }
