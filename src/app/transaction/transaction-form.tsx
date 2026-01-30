@@ -116,7 +116,7 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md" onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>
             {isEditing ? 'Edit Transaksi' : 'Tambah Transaksi Baru'}
