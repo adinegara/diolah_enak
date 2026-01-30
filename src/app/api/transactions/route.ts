@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       product:product_id(id, name, price),
       creator:profiles!created_by(id, email, full_name)
     `, { count: 'exact' })
-    .order('date', { ascending: false })
+    .order('created_at', { ascending: false })
 
   // Apply filters
   if (customer) {
