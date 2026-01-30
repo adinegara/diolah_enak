@@ -130,6 +130,7 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
               name="date"
               type="date"
               required
+              className="w-11/12"
               defaultValue={transaction?.date ? new Date(transaction.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
             />
           </div>

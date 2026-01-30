@@ -6,6 +6,11 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
+  // Skip auth in dev mode if SKIP_AUTH is set
+  if (process.env.SKIP_AUTH === 'true') {
+    return supabaseResponse
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
