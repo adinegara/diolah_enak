@@ -12,6 +12,7 @@ import {
   Menu,
   ChevronLeft,
   ChevronRight,
+  Layers,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AppLogo } from '@/components/app-logo'
@@ -23,6 +24,7 @@ import { useState, useEffect } from 'react'
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/transaction', label: 'Transaksi', icon: Receipt },
+  { href: '/collection', label: 'Koleksi', icon: Layers },
   { href: '/product', label: 'Produk', icon: Package },
   { href: '/customer', label: 'Pelanggan', icon: Users },
 ]
