@@ -21,6 +21,7 @@ import { getCollectionWithItems } from './actions'
 import type { Customer, Product, CollectionItemWithDetails } from '@/types/database'
 import { Play, Package, Users } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ExpandableText } from '@/components/expandable-text'
 
 interface CollectionDetailDialogProps {
   collectionId: number
@@ -93,9 +94,9 @@ export function CollectionDetailDialog({
                         <Package className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">{item.product?.name || '-'}</span>
                       </div>
-                      {item.notes && (
-                        <p className="text-xs text-muted-foreground mt-2">{item.notes}</p>
-                      )}
+                      <div className="text-xs text-muted-foreground mt-2">
+                        <ExpandableText text={item.notes} maxLength={40} />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -103,14 +104,14 @@ export function CollectionDetailDialog({
             </div>
 
             {/* Desktop Table View */}
-            <div className="hidden md:block border rounded-lg">
-              <Table>
+            <div className="hidden md:block border rounded-lg overflow-hidden">
+              <Table className="table-fixed w-full">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[50px]">#</TableHead>
-                    <TableHead>Pelanggan</TableHead>
-                    <TableHead>Produk</TableHead>
-                    <TableHead className="text-right">Qty</TableHead>
+                    <TableHead className="w-[40px]">#</TableHead>
+                    <TableHead className="w-[25%]">Pelanggan</TableHead>
+                    <TableHead className="w-[25%]">Produk</TableHead>
+                    <TableHead className="w-[60px] text-right">Qty</TableHead>
                     <TableHead>Catatan</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -118,10 +119,12 @@ export function CollectionDetailDialog({
                   {collection.items.map((item, index) => (
                     <TableRow key={item.id}>
                       <TableCell className="text-muted-foreground">{index + 1}</TableCell>
-                      <TableCell>{item.customer?.name || '-'}</TableCell>
-                      <TableCell>{item.product?.name || '-'}</TableCell>
+                      <TableCell className="truncate">{item.customer?.name || '-'}</TableCell>
+                      <TableCell className="truncate">{item.product?.name || '-'}</TableCell>
                       <TableCell className="text-right">{item.order_qty || 0}</TableCell>
-                      <TableCell className="text-muted-foreground">{item.notes || '-'}</TableCell>
+                      <TableCell className="text-muted-foreground whitespace-normal wrap-break-word">
+                        <ExpandableText text={item.notes} maxLength={9} />
+                      </TableCell>
                     </TableRow>
                   ))}
                   {collection.items.length === 0 && (

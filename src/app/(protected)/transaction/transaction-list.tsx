@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { EditTransactionButton } from './transaction-form'
 import { DeleteTransactionButton } from './delete-button'
-import { ExpandableText } from './expandable-text'
+import { ExpandableText } from '@/components/expandable-text'
 import { BulkActions } from './bulk-actions'
 import type { Customer, Product, UserProfile, Transaction } from '@/types/database'
 
