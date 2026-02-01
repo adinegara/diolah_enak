@@ -81,3 +81,20 @@ export async function bulkUpdateStatus(ids: number[], status: string) {
   revalidatePath('/dashboard')
   return { success: true }
 }
+
+export async function bulkDeleteTransactions(ids: number[]) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('transaction')
+    .delete()
+    .in('id', ids)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/transaction')
+  revalidatePath('/dashboard')
+  return { success: true }
+}
