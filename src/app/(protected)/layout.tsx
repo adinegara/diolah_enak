@@ -1,6 +1,6 @@
 import { Sidebar } from '@/components/layout/sidebar'
 
-export default function TransactionLayout({
+export default function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode
