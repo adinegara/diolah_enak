@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSWRConfig } from 'swr'
 import { COLLECTIONS_KEY_PREFIX } from '@/hooks/use-collections'
 
@@ -59,23 +59,34 @@ export function CollectionForm({ customers, products }: CollectionFormProps) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [items, setItems] = useState<ItemFormData[]>([])
+  const [lastAddedId, setLastAddedId] = useState<string | null>(null)
+  const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   const refreshData = useCallback(() => {
     mutate((key: string) => typeof key === 'string' && key.startsWith(COLLECTIONS_KEY_PREFIX))
   }, [mutate])
 
   const addItem = () => {
+    const newId = generateId()
     setItems([
       ...items,
       {
-        id: generateId(),
+        id: newId,
         zone_id: '',
         product_id: '',
         order_qty: '',
         notes: '',
       },
     ])
+    setLastAddedId(newId)
   }
+
+  useEffect(() => {
+    if (lastAddedId && itemRefs.current[lastAddedId]) {
+      itemRefs.current[lastAddedId]?.focus()
+      setLastAddedId(null)
+    }
+  }, [lastAddedId, items])
 
   const removeItem = (id: string) => {
     setItems(items.filter(item => item.id !== id))
@@ -185,6 +196,7 @@ export function CollectionForm({ customers, products }: CollectionFormProps) {
                 products={products}
                 onUpdate={updateItem}
                 onRemove={removeItem}
+                customerButtonRef={(el) => { itemRefs.current[item.id] = el }}
               />
             ))}
           </div>
@@ -214,9 +226,10 @@ interface ItemRowProps {
   products: Product[]
   onUpdate: (id: string, field: keyof ItemFormData, value: string) => void
   onRemove: (id: string) => void
+  customerButtonRef?: (el: HTMLButtonElement | null) => void
 }
 
-function ItemRow({ item, index, customers, products, onUpdate, onRemove }: ItemRowProps) {
+function ItemRow({ item, index, customers, products, onUpdate, onRemove, customerButtonRef }: ItemRowProps) {
   const [customerOpen, setCustomerOpen] = useState(false)
   const [productOpen, setProductOpen] = useState(false)
 
@@ -242,6 +255,7 @@ function ItemRow({ item, index, customers, products, onUpdate, onRemove }: ItemR
           <Popover open={customerOpen} onOpenChange={setCustomerOpen}>
             <PopoverTrigger asChild>
               <Button
+                ref={customerButtonRef}
                 variant="outline"
                 role="combobox"
                 className="w-full justify-between font-normal h-9 text-sm"
@@ -374,6 +388,8 @@ export function EditCollectionDialog({ collection, customers, products, open, on
   const [name, setName] = useState(collection.name)
   const [description, setDescription] = useState(collection.description || '')
   const [items, setItems] = useState<ItemFormData[]>([])
+  const [lastAddedId, setLastAddedId] = useState<string | null>(null)
+  const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   const refreshData = useCallback(() => {
     mutate((key: string) => typeof key === 'string' && key.startsWith(COLLECTIONS_KEY_PREFIX))
@@ -399,17 +415,26 @@ export function EditCollectionDialog({ collection, customers, products, open, on
     }
   }, [open, collection.id])
 
+  useEffect(() => {
+    if (lastAddedId && itemRefs.current[lastAddedId]) {
+      itemRefs.current[lastAddedId]?.focus()
+      setLastAddedId(null)
+    }
+  }, [lastAddedId, items])
+
   const addItem = () => {
+    const newId = generateId()
     setItems([
       ...items,
       {
-        id: generateId(),
+        id: newId,
         zone_id: '',
         product_id: '',
         order_qty: '',
         notes: '',
       },
     ])
+    setLastAddedId(newId)
   }
 
   const removeItem = (id: string) => {
@@ -506,6 +531,7 @@ export function EditCollectionDialog({ collection, customers, products, open, on
                   products={products}
                   onUpdate={updateItem}
                   onRemove={removeItem}
+                  customerButtonRef={(el) => { itemRefs.current[item.id] = el }}
                 />
               ))}
             </div>
