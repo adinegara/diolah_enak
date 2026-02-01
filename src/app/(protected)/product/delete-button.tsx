@@ -1,6 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import { useSWRConfig } from 'swr'
+import { PRODUCTS_KEY_PREFIX } from '@/hooks/use-products'
+import { DASHBOARD_STATS_KEY } from '@/hooks/use-dashboard-stats'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -14,14 +17,21 @@ import { deleteProduct } from './actions'
 import { Trash2 } from 'lucide-react'
 
 export function DeleteProductButton({ id, name }: { id: number; name: string }) {
+  const { mutate } = useSWRConfig()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  const refreshData = useCallback(() => {
+    mutate((key: string) => typeof key === 'string' && key.startsWith(PRODUCTS_KEY_PREFIX))
+    mutate(DASHBOARD_STATS_KEY)
+  }, [mutate])
 
   const handleDelete = async () => {
     setLoading(true)
     await deleteProduct(id)
     setLoading(false)
     setOpen(false)
+    refreshData()
   }
 
   return (

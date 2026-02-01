@@ -1,6 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import { useSWRConfig } from 'swr'
+import { PRODUCTS_KEY_PREFIX } from '@/hooks/use-products'
+import { DASHBOARD_STATS_KEY } from '@/hooks/use-dashboard-stats'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -22,11 +25,17 @@ interface ProductFormProps {
 }
 
 export function ProductForm({ product, trigger }: ProductFormProps) {
+  const { mutate } = useSWRConfig()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const isEditing = !!product
+
+  const refreshData = useCallback(() => {
+    mutate((key: string) => typeof key === 'string' && key.startsWith(PRODUCTS_KEY_PREFIX))
+    mutate(DASHBOARD_STATS_KEY)
+  }, [mutate])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -51,6 +60,7 @@ export function ProductForm({ product, trigger }: ProductFormProps) {
       setError(result.error)
     } else {
       setOpen(false)
+      refreshData()
     }
   }
 
