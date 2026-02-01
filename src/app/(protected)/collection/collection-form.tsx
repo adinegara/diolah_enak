@@ -269,7 +269,7 @@ function ItemRow({ item, index, customers, products, onUpdate, onRemove, custome
             <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
               <Command>
                 <CommandInput placeholder="Cari pelanggan..." />
-                <CommandList>
+                <CommandList className="max-h-[200px] overflow-y-auto">
                   <CommandEmpty>Tidak ditemukan.</CommandEmpty>
                   <CommandGroup>
                     {customers.map((customer) => (
@@ -316,7 +316,7 @@ function ItemRow({ item, index, customers, products, onUpdate, onRemove, custome
             <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
               <Command>
                 <CommandInput placeholder="Cari produk..." />
-                <CommandList>
+                <CommandList className="max-h-[200px] overflow-y-auto">
                   <CommandEmpty>Tidak ditemukan.</CommandEmpty>
                   <CommandGroup>
                     {products.map((product) => (
