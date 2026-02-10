@@ -40,7 +40,7 @@
   --accent: #8B5CF6;
   --accent-foreground: #FFFFFF;
   --destructive: #EF4444;
-  --border: #3D3D3D;
+  --border: transparent;
   --input: #3D3D3D;
   --ring: #CDFF00;
 
@@ -95,7 +95,7 @@
   --accent: #7C3AED;
   --accent-foreground: #FFFFFF;
   --destructive: #DC2626;
-  --border: #D4D4D4;
+  --border: transparent;
   --input: #D4D4D4;
   --ring: #B8E600;
 
@@ -167,7 +167,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/50 shadow-none;
   }
   body {
     @apply bg-background text-foreground;
