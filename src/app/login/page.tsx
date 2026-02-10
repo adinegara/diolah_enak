@@ -5,9 +5,50 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { AppLogo } from '@/components/app-logo'
 import { toast } from 'sonner'
+import { useSearchParams } from 'next/navigation'
+import { Suspense, useEffect, useState } from 'react'
+import { AlertCircle } from 'lucide-react'
 
-export default function LoginPage() {
+function getErrorMessage(errorCode: string | null, errorDescription: string | null): string {
+  // Map common Supabase error codes to user-friendly messages
+  if (errorCode === 'signup_disabled') {
+    return 'Pendaftaran tidak diizinkan. Hubungi administrator untuk mendapatkan akses.'
+  }
+  if (errorCode === 'access_denied') {
+    return 'Akses ditolak. Anda tidak memiliki izin untuk masuk.'
+  }
+  if (errorCode === 'unauthorized_client') {
+    return 'Konfigurasi OAuth tidak valid. Hubungi administrator.'
+  }
+  if (errorDescription) {
+    return errorDescription.replace(/\+/g, ' ')
+  }
+  return 'Terjadi kesalahan saat masuk. Silakan coba lagi.'
+}
+
+function LoginContent() {
   const supabase = createClient()
+  const searchParams = useSearchParams()
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    const hasError = searchParams.get('error')
+
+    if (hasError) {
+      // Parse error details from hash fragment (Supabase puts error info here)
+      const hash = window.location.hash.substring(1)
+      const hashParams = new URLSearchParams(hash)
+
+      const errorCode = hashParams.get('error_code')
+      const errorDescription = hashParams.get('error_description')
+
+      const message = getErrorMessage(errorCode, errorDescription)
+      setErrorMessage(message)
+
+      // Clean up the URL without refreshing the page
+      window.history.replaceState({}, '', '/login')
+    }
+  }, [searchParams])
 
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -48,6 +89,14 @@ export default function LoginPage() {
               Masuk untuk mengelola transaksi produk Anda
             </p>
           </div>
+
+          {/* Error Message */}
+          {errorMessage && (
+            <div className="flex items-center gap-3 p-4 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm text-left">
+              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
 
           {/* Google Login Button */}
           <div className="space-y-4">
@@ -92,5 +141,13 @@ export default function LoginPage() {
         </p>
       </footer>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   )
 }
