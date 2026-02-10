@@ -242,13 +242,13 @@ export function TransactionFilters({ customers, products }: TransactionFiltersPr
         {/* Customer Multi-Select */}
         <Popover open={customerPopoverOpen} onOpenChange={setCustomerPopoverOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="w-full md:w-[180px] justify-between">
+            <Button variant="outline" className="w-full md:w-[180px] justify-between bg-transparent border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-transparent hover:text-current">
               <span className="truncate">
                 {selectedCustomers.length === 0
                   ? 'Semua Pelanggan'
                   : `${selectedCustomers.length} Pelanggan`}
               </span>
-              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+              <ChevronDown className="h-4 w-4 shrink-0 opacity-50 text-muted-foreground" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[200px] p-2" align="start">
@@ -282,13 +282,13 @@ export function TransactionFilters({ customers, products }: TransactionFiltersPr
         {/* Product Multi-Select */}
         <Popover open={productPopoverOpen} onOpenChange={setProductPopoverOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="w-full md:w-[180px] justify-between">
+            <Button variant="outline" className="w-full md:w-[180px] justify-between bg-transparent border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-transparent hover:text-current">
               <span className="truncate">
                 {selectedProducts.length === 0
                   ? 'Semua Produk'
                   : `${selectedProducts.length} Produk`}
               </span>
-              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+              <ChevronDown className="h-4 w-4 shrink-0 opacity-50 text-muted-foreground" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[200px] p-2" align="start">
