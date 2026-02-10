@@ -4,17 +4,24 @@ export const runtime = "edge";
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { AppLogo } from '@/components/app-logo'
+import { toast } from 'sonner'
 
 export default function LoginPage() {
   const supabase = createClient()
 
   const handleGoogleLogin = async () => {
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
+
+    if (error) {
+      toast.error('Gagal masuk', {
+        description: error.message,
+      })
+    }
   }
 
   return (
