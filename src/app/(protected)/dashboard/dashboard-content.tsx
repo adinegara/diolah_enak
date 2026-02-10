@@ -35,18 +35,24 @@ export function DashboardContent() {
     icon: typeof Package
     href?: string
     subtitle?: string
+    cardClassName?: string
+    textClassName?: string
   }> = [
     {
       title: 'Total Produk',
       value: data?.counts.products || 0,
       icon: Package,
       href: '/product',
+      cardClassName: 'bg-primary',
+      textClassName: 'text-primary-foreground',
     },
     {
       title: 'Total Pelanggan',
       value: data?.counts.customers || 0,
       icon: Users,
       href: '/customer',
+      cardClassName: 'bg-foreground',
+      textClassName: 'text-background',
     },
     {
       title: 'Total Transaksi',
@@ -81,35 +87,36 @@ export function DashboardContent() {
             ))
           : stats.map((stat) => {
               const Icon = stat.icon
+              const hasCustomStyle = stat.cardClassName && stat.textClassName
               return (
-                <Card key={stat.title} className="hover:bg-secondary/50 transition-colors">
+                <Card key={stat.title} className={`transition-colors ${stat.cardClassName || 'hover:bg-secondary/50'}`}>
                   {stat.href ? (
                     <Link href={stat.href}>
                       <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">
+                        <CardTitle className={`text-sm font-medium ${hasCustomStyle ? `${stat.textClassName} opacity-80` : 'text-muted-foreground'}`}>
                           {stat.title}
                         </CardTitle>
-                        <Icon className="h-5 w-5 text-muted-foreground" />
+                        <Icon className={`h-5 w-5 ${hasCustomStyle ? `${stat.textClassName} opacity-80` : 'text-muted-foreground'}`} />
                       </CardHeader>
                       <CardContent>
-                        <div className="text-2xl font-bold">{stat.value}</div>
+                        <div className={`text-2xl font-bold ${stat.textClassName || ''}`}>{stat.value}</div>
                         {stat.subtitle && (
-                          <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
+                          <p className={`text-xs ${hasCustomStyle ? `${stat.textClassName} opacity-80` : 'text-muted-foreground'}`}>{stat.subtitle}</p>
                         )}
                       </CardContent>
                     </Link>
                   ) : (
                     <>
                       <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">
+                        <CardTitle className={`text-sm font-medium ${hasCustomStyle ? `${stat.textClassName} opacity-80` : 'text-muted-foreground'}`}>
                           {stat.title}
                         </CardTitle>
-                        <Icon className="h-5 w-5 text-muted-foreground" />
+                        <Icon className={`h-5 w-5 ${hasCustomStyle ? `${stat.textClassName} opacity-80` : 'text-muted-foreground'}`} />
                       </CardHeader>
                       <CardContent>
-                        <div className="text-2xl font-bold">{stat.value}</div>
+                        <div className={`text-2xl font-bold ${stat.textClassName || ''}`}>{stat.value}</div>
                         {stat.subtitle && (
-                          <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
+                          <p className={`text-xs ${hasCustomStyle ? `${stat.textClassName} opacity-80` : 'text-muted-foreground'}`}>{stat.subtitle}</p>
                         )}
                       </CardContent>
                     </>

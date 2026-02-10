@@ -51,30 +51,30 @@ export function StatsSection({
 
       {/* Stats Cards - Hidden by default on mobile, always visible on md+ */}
       <div className={`grid gap-4 grid-cols-2 lg:grid-cols-4 ${showStats ? 'block' : 'hidden'} md:grid`}>
-        <Card>
+        <Card className="bg-primary">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-primary-foreground opacity-80">
               Total Order
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">
+            <div className="text-2xl font-bold text-primary-foreground">
               {totalOrder.toLocaleString('id-ID')}
             </div>
-            <p className="text-xs text-muted-foreground">{formatCurrency(totalBilled)}</p>
+            <p className="text-xs text-primary-foreground opacity-80">{formatCurrency(totalBilled)}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-foreground">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-background opacity-80">
               Total Retur
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-destructive">
+            <div className="text-2xl font-bold text-background">
               {totalReturn.toLocaleString('id-ID')}
             </div>
-            <p className="text-xs text-muted-foreground">{formatCurrency(totalReturned)}</p>
+            <p className="text-xs text-background opacity-80">{formatCurrency(totalReturned)}</p>
           </CardContent>
         </Card>
         <Card>
