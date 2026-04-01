@@ -23,7 +23,7 @@ function getErrorMessage(errorCode: string | null, errorDescription: string | nu
   if (errorDescription) {
     return errorDescription.replace(/\+/g, ' ')
   }
-  return 'Terjadi kesalahan saat masuk. Silakan coba lagi.'
+  return 'Terjadi kesalahan saat masuk. Silakan coba lagi'
 }
 
 function LoginContent() {
