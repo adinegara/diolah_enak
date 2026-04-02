@@ -252,7 +252,7 @@ function ItemRow({ item, index, customers, products, onUpdate, onRemove, custome
         {/* Customer */}
         <div className="space-y-1">
           <Label className="text-xs">Pelanggan *</Label>
-          <Popover open={customerOpen} onOpenChange={setCustomerOpen}>
+          <Popover open={customerOpen} onOpenChange={setCustomerOpen} modal={true}>
             <PopoverTrigger asChild>
               <Button
                 ref={customerButtonRef}
@@ -269,7 +269,7 @@ function ItemRow({ item, index, customers, products, onUpdate, onRemove, custome
             <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
               <Command>
                 <CommandInput placeholder="Cari pelanggan..." />
-                <CommandList className="max-h-[200px] overflow-y-auto">
+                <CommandList className="max-h-[40vh] overflow-y-auto">
                   <CommandEmpty>Tidak ditemukan.</CommandEmpty>
                   <CommandGroup>
                     {customers.map((customer) => (
@@ -300,7 +300,7 @@ function ItemRow({ item, index, customers, products, onUpdate, onRemove, custome
         {/* Product */}
         <div className="space-y-1">
           <Label className="text-xs">Produk *</Label>
-          <Popover open={productOpen} onOpenChange={setProductOpen}>
+          <Popover open={productOpen} onOpenChange={setProductOpen} modal={true}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -316,7 +316,7 @@ function ItemRow({ item, index, customers, products, onUpdate, onRemove, custome
             <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
               <Command>
                 <CommandInput placeholder="Cari produk..." />
-                <CommandList className="max-h-[200px] overflow-y-auto">
+                <CommandList className="max-h-[40vh] overflow-y-auto">
                   <CommandEmpty>Tidak ditemukan.</CommandEmpty>
                   <CommandGroup>
                     {products.map((product) => (
