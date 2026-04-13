@@ -136,7 +136,7 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
           </div>
           <div className="space-y-2">
             <Label htmlFor="customer">Pelanggan *</Label>
-            <Popover open={customerOpen} onOpenChange={setCustomerOpen}>
+            <Popover modal={true} open={customerOpen} onOpenChange={setCustomerOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -153,11 +153,7 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
               <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                 <Command>
                   <CommandInput placeholder="Cari pelanggan..." />
-                  <CommandList
-                    onWheel={(e) => {
-                      e.stopPropagation()
-                    }}
-                  >
+                  <CommandList className="max-h-[40vh] overflow-y-auto">
                     <CommandEmpty>Pelanggan tidak ditemukan.</CommandEmpty>
                     <CommandGroup>
                       {customers.map((customer) => (
@@ -186,7 +182,7 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
           </div>
           <div className="space-y-2">
             <Label htmlFor="product">Produk *</Label>
-            <Popover open={productOpen} onOpenChange={setProductOpen}>
+            <Popover modal={true} open={productOpen} onOpenChange={setProductOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -206,11 +202,7 @@ export function TransactionForm({ transaction, customers, products, trigger }: T
               <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                 <Command>
                   <CommandInput placeholder="Cari produk..." />
-                  <CommandList
-                    onWheel={(e) => {
-                      e.stopPropagation()
-                    }}
-                  >
+                  <CommandList className="max-h-[40vh] overflow-y-auto">
                     <CommandEmpty>Produk tidak ditemukan.</CommandEmpty>
                     <CommandGroup>
                       {products.map((product) => (
