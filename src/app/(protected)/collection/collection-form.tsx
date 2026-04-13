@@ -266,7 +266,7 @@ function ItemRow({ item, index, customers, products, onUpdate, onRemove, custome
                 <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0" onOpenAutoFocus={(e) => e.preventDefault()}>
               <Command>
                 <CommandInput placeholder="Cari pelanggan..." />
                 <CommandList className="max-h-[40vh] overflow-y-auto">
@@ -313,7 +313,7 @@ function ItemRow({ item, index, customers, products, onUpdate, onRemove, custome
                 <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0" onOpenAutoFocus={(e) => e.preventDefault()}>
               <Command>
                 <CommandInput placeholder="Cari produk..." />
                 <CommandList className="max-h-[40vh] overflow-y-auto">
